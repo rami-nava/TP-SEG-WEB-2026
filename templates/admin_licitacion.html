@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Propuestas — {{ lic.titulo }}{% endblock %}
+{% block main_extra %}container-wide{% endblock %}
+{% block content %}
+  <p><a href="{{ url_for('admin_panel') }}">← Volver al panel</a></p>
+  <h1>{{ lic.titulo }}</h1>
+  <p class="lead">
+    <span class="badge badge-{{ lic.estado }}">{{ lic.estado|capitalize }}</span>
+    · Cierre: {{ lic.fecha_cierre }}
+  </p>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>Propuestas recibidas</h2>
+      {% if propuestas %}
+        <a class="btn btn-sec btn-sm" href="{{ url_for('exportar_propuestas', id=lic.id) }}">
+          ⬇ Descargar Excel
+        </a>
+      {% endif %}
+    </div>
+    {% if propuestas %}
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Proveedor</th><th>Razon social</th><th>CUIT</th>
+              <th>Contacto</th><th>Monto</th><th>Descripcion</th><th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% set accion_map = {'pendiente':'pendiente','aprobada':'aprobar','rechazada':'rechazar','seleccionada':'seleccionar'} %}
+            {% for p in propuestas %}
+              <tr>
+                <td>{{ p.username }}</td>
+                <td>{{ p.razon_social }}</td>
+                <td class="nowrap">{{ p.cuit }}</td>
+                <td class="nowrap">{{ p.email_contacto }}</td>
+                <td class="monto nowrap">$ {{ '{:,.0f}'.format(p.monto) }}</td>
+                <td>
+                  <div class="desc-render">{{ p.descripcion | safe }}</div>
+                </td>
+                <td>
+                  {% if lic.estado == 'cerrada' %}
+                    {# Licitacion adjudicada: estado final, solo lectura. #}
+                    <span class="badge badge-{{ p.estado }}">{{ p.estado|replace('_',' ')|capitalize }}</span>
+                  {% else %}
+                    {# Dropdown de estado. 'No seleccionada' NO es una opcion:
+                       es automatica al cerrar la licitacion. #}
+                    <form method="post" class="estado-form"
+                          action="{{ url_for('admin_estado_propuesta', propuesta_id=p.id) }}">
+                      <select name="accion" class="estado-select badge badge-{{ p.estado }}"
+                              data-prev="{{ accion_map.get(p.estado, 'pendiente') }}"
+                              onchange="cambiarEstado(this)">
+                        <option value="pendiente"   {{ 'selected' if p.estado == 'pendiente' }}>Pendiente</option>
+                        <option value="aprobar"     {{ 'selected' if p.estado == 'aprobada' }}>Aprobada</option>
+                        <option value="rechazar"    {{ 'selected' if p.estado == 'rechazada' }}>Rechazada</option>
+                        <option value="seleccionar" {{ 'selected' if p.estado == 'seleccionada' }}>Seleccionada</option>
+                      </select>
+                    </form>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">Esta licitacion aun no tiene propuestas.</p>
+    {% endif %}
+  </div>
+
+  <div id="modal-sel" class="modal-overlay" hidden>
+    <div class="modal-box">
+      <p class="modal-msg">¿Desea seleccionar la propuesta y cerrar la licitación?</p>
+      <div class="modal-acciones">
+        <button type="button" class="btn btn-sec btn-sm" id="modal-cancelar">Cancelar</button>
+        <button type="button" class="btn btn-sm" id="modal-aceptar">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var selPendiente = null;
+    var modal = document.getElementById('modal-sel');
+
+    function cambiarEstado(sel) {
+      if (sel.value === 'seleccionar') {
+        selPendiente = sel;
+        modal.hidden = false;
+        return;
+      }
+      sel.form.submit();
+    }
+
+    document.getElementById('modal-cancelar').addEventListener('click', function () {
+      if (selPendiente) selPendiente.value = selPendiente.dataset.prev;
+      selPendiente = null;
+      modal.hidden = true;
+    });
+    document.getElementById('modal-aceptar').addEventListener('click', function () {
+      if (selPendiente) selPendiente.form.submit();
+    });
+  </script>
+{% endblock %}

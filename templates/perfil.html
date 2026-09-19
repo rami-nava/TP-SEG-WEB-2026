@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Perfil — Ficticio S.A.{% endblock %}
+{% block content %}
+  <div class="card form-narrow">
+    <h1>Mi perfil</h1>
+    <p class="lead">Datos de la cuenta.</p>
+    <div class="form-grupo">
+      <label>Usuario</label>
+      <input type="text" value="{{ perfil.username }}" disabled>
+    </div>
+    <div class="form-grupo">
+      <label>Rol</label>
+      <input type="text" value="{{ perfil.rol }}" disabled>
+    </div>
+    <form method="post">
+      <div class="form-grupo">
+        <label for="nombre_empresa">Nombre de la empresa</label>
+        <input type="text" id="nombre_empresa" name="nombre_empresa" value="{{ perfil.nombre_empresa }}">
+      </div>
+      <button class="btn" type="submit">Guardar cambios</button>
+    </form>
+  </div>
+{% endblock %}

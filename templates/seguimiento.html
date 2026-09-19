@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Mis propuestas — Ficticio S.A.{% endblock %}
+{% block content %}
+  <h1>Mis propuestas</h1>
+  <p class="lead">Estado de las propuestas que presentaste.</p>
+
+  <div class="card">
+    {% if propuestas %}
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Licitacion</th><th>Razon social</th><th>CUIT</th>
+              <th>Contacto</th><th>Monto</th><th>Estado</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in propuestas %}
+              <tr>
+                <td>{{ p.lic_titulo }}</td>
+                <td>{{ p.razon_social }}</td>
+                <td class="nowrap">{{ p.cuit }}</td>
+                <td class="nowrap">{{ p.email_contacto }}</td>
+                <td class="monto nowrap">$ {{ '{:,.0f}'.format(p.monto) }}</td>
+                <td><span class="badge badge-{{ p.estado }}">{{ p.estado|replace('_',' ')|capitalize }}</span></td>
+                <td>
+                  <form method="post"
+                        action="{{ url_for('eliminar_propuesta', propuesta_id=p.id) }}"
+                        onsubmit="return confirm('¿Eliminar esta propuesta?');">
+                    <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">Todavia no presentaste ninguna propuesta.</p>
+    {% endif %}
+  </div>
+{% endblock %}

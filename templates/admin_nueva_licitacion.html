@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Nueva licitacion — Ficticio S.A.{% endblock %}
+{% block content %}
+  <div class="card form-narrow">
+    <h1>Nueva licitacion</h1>
+    {% if error %}<div class="errores">{{ error }}</div>{% endif %}
+    <form method="post">
+      <div class="form-grupo">
+        <label for="titulo">Titulo</label>
+        <input type="text" id="titulo" name="titulo" value="{{ form.get('titulo','') }}" required>
+      </div>
+      <div class="form-grupo">
+        <label for="descripcion">Descripcion</label>
+        <textarea id="descripcion" name="descripcion">{{ form.get('descripcion','') }}</textarea>
+      </div>
+      <div class="form-grupo">
+        <label for="estado">Estado</label>
+        <select id="estado" name="estado">
+          <option value="abierta">Abierta</option>
+          <option value="cerrada">Cerrada</option>
+        </select>
+      </div>
+      <div class="form-grupo">
+        <label for="fecha_cierre">Fecha de cierre</label>
+        <input type="date" id="fecha_cierre" name="fecha_cierre" value="{{ form.get('fecha_cierre','') }}">
+      </div>
+      <button class="btn btn-block" type="submit">Crear licitacion</button>
+    </form>
+  </div>
+{% endblock %}

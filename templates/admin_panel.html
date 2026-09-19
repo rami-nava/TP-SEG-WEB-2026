@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Panel de administracion — Ficticio S.A.{% endblock %}
+{% block content %}
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+    <div>
+      <h1>Panel de administracion</h1>
+      <p class="lead">Gestion de licitaciones y reportes internos.</p>
+    </div>
+    <a class="btn" href="{{ url_for('admin_nueva_licitacion') }}">+ Nueva licitacion</a>
+  </div>
+
+  <div class="card">
+    <h2>Licitaciones</h2>
+    <div class="tabla-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Titulo</th><th>Estado</th><th>Cierre</th><th>Propuestas</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for lic in licitaciones %}
+            <tr>
+              <td>{{ lic.id }}</td>
+              <td>{{ lic.titulo }}</td>
+              <td><span class="badge badge-{{ lic.estado }}">{{ lic.estado|capitalize }}</span></td>
+              <td>{{ lic.fecha_cierre }}</td>
+              <td>{{ lic.n_propuestas }}</td>
+              <td><a href="{{ url_for('admin_licitacion', id=lic.id) }}">Ver propuestas →</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Reportes descargables</h2>
+    <p class="muted">Reportes internos generados por el sistema.</p>
+    <ul>
+      {% for r in reportes %}
+        <li><a href="{{ url_for('descargar', file=r) }}">{{ r }}</a></li>
+      {% else %}
+        <li class="muted">No hay reportes disponibles.</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

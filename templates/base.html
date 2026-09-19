@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Ficticio S.A. — Licitaciones{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-inner">
+      <a class="brand" href="{{ url_for('index') }}">
+        <span class="brand-mark">◆</span>
+        <span class="brand-text">Ficticio <strong>S.A.</strong></span>
+        <span class="brand-sub">Portal de Licitaciones</span>
+      </a>
+      <nav class="nav-links">
+        <a href="{{ url_for('index') }}">Licitaciones</a>
+        {% if usuario %}
+          {% if not usuario.es_admin() %}
+            <a href="{{ url_for('mis_propuestas') }}">Mis propuestas</a>
+          {% endif %}
+          <a href="{{ url_for('perfil') }}">Perfil</a>
+          {% if usuario.es_admin() %}
+            <a class="nav-admin" href="{{ url_for('admin_panel') }}">Panel Admin</a>
+          {% endif %}
+          <span class="nav-user">{{ usuario.username }}</span>
+          <a class="btn-nav" href="{{ url_for('logout') }}">Salir</a>
+        {% else %}
+          <a class="btn-nav" href="{{ url_for('login') }}">Ingresar</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="container {% block main_extra %}{% endblock %}">
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+      {% if mensajes %}
+        {% for categoria, texto in mensajes %}
+          <div class="flash flash-{{ categoria }}">{{ texto }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if contenido_403 %}
+      <div class="card">
+        <h1>403 — Acceso denegado</h1>
+        <p class="muted">No tenes permisos para ver esta seccion. Se requiere rol administrador.</p>
+        <a class="btn" href="{{ url_for('index') }}">Volver al inicio</a>
+      </div>
+    {% else %}
+      {% block content %}{% endblock %}
+    {% endif %}
+  </main>
+
+  <footer class="footer">
+    <p>Ficticio S.A. — Portal de Licitaciones</p>
+  </footer>
+</body>
+</html>

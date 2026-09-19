@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+  <div style="margin-bottom:22px;">
+    <h1>Licitaciones vigentes</h1>
+    <p class="lead">Ficticio S.A. publica sus procesos de compra. Los proveedores registrados pueden presentar propuestas y hacer seguimiento de su estado.</p>
+
+    {% if usuario %}
+      <div class="filtros">
+        <a class="chip {{ 'chip-on' if filtro == 'todas' else '' }}" href="{{ url_for('index', estado='todas') }}">Todas</a>
+        <a class="chip {{ 'chip-on' if filtro == 'abierta' else '' }}" href="{{ url_for('index', estado='abierta') }}">Abiertas</a>
+        <a class="chip {{ 'chip-on' if filtro == 'cerrada' else '' }}" href="{{ url_for('index', estado='cerrada') }}">Cerradas</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="grid">
+    {% for lic in licitaciones %}
+      <div class="card lic-card">
+        <div>
+          <span class="badge badge-{{ lic.estado }}">{{ lic.estado|capitalize }}</span>
+          <h3 style="margin-top:10px;">{{ lic.titulo }}</h3>
+          <p>{{ lic.descripcion }}</p>
+        </div>
+        <div class="lic-meta">
+          <span>Cierre: {{ lic.fecha_cierre }}</span>
+          {% if lic.estado == "abierta" %}
+            {% if usuario and usuario.es_admin() %}
+              <a class="btn btn-sec" href="{{ url_for('admin_licitacion', id=lic.id) }}">Ver propuestas</a>
+            {% elif usuario %}
+              {% if lic.id in presentadas %}
+                <button class="btn" type="button" disabled>Propuesta ya presentada</button>
+              {% elif lic.id in vencidas %}
+                <button class="btn" type="button" disabled>Cierre vencido</button>
+              {% else %}
+                <a class="btn" href="{{ url_for('propuesta', licitacion_id=lic.id) }}">Presentar propuesta</a>
+              {% endif %}
+            {% else %}
+              <a class="btn btn-sec" href="{{ url_for('login') }}">Ingresar para participar</a>
+            {% endif %}
+          {% else %}
+            <span class="muted">Cerrada</span>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
