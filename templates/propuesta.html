@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Nueva propuesta — Ficticio S.A.{% endblock %}
+{% block content %}
+  <div class="card form-narrow">
+    <h1>Presentar propuesta</h1>
+    <p class="lead">{{ lic.titulo }}</p>
+
+    {% if errores %}
+      <div class="errores">
+        <ul style="margin:0; padding-left:16px;">
+          {% for e in errores %}<li>{{ e }}</li>{% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <form method="post">
+      <div class="form-grupo">
+        <label for="razon_social">Razon social</label>
+        <input type="text" id="razon_social" name="razon_social" value="{{ form.get('razon_social','') }}" required>
+      </div>
+      <div class="form-grupo">
+        <label for="cuit">CUIT</label>
+        <input type="text" id="cuit" name="cuit" placeholder="XX-XXXXXXXX-X" value="{{ form.get('cuit','') }}" required>
+        <div class="hint">Formato validado: dos digitos, guion, ocho digitos, guion, un digito.</div>
+      </div>
+      <div class="form-grupo">
+        <label for="monto">Monto ofertado (ARS)</label>
+        <input type="text" id="monto" name="monto" value="{{ form.get('monto','') }}" required>
+        <div class="hint">Se valida que sea un numero.</div>
+      </div>
+      <div class="form-grupo">
+        <label for="email_contacto">Email de contacto</label>
+        <input type="email" id="email_contacto" name="email_contacto"
+               placeholder="nombre@empresa.com" value="{{ form.get('email_contacto','') }}" required>
+        <div class="hint">Se usara para comunicarnos sobre esta propuesta.</div>
+      </div>
+      <div class="form-grupo">
+        <label for="descripcion">Descripcion de la oferta</label>
+        <textarea id="descripcion" name="descripcion">{{ form.get('descripcion','') }}</textarea>
+        <div class="hint">Detalle libre de la propuesta.</div>
+      </div>
+      <button class="btn btn-block" type="submit">Enviar propuesta</button>
+    </form>
+  </div>
+{% endblock %}
