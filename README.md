@@ -23,20 +23,17 @@ Incluye una **cadena de 4 vulnerabilidades** que terminan en **RCE**:
 
 ## Instalacion y ejecucion
 
-# 1) (opcional) entorno virtual
+## 1) (Opcional) Entorno virtual
 python3 -m venv venv && source venv/bin/activate
 
-# 2) dependencias
+## 2) Dependencias
 pip install -r requirements.txt
 
-# 3) crear y precargar la base de datos (se puede repetir para reiniciar la BD con datos iniciales)
+## 3) Crear y precargar la base de datos (se puede repetir para reiniciar la BD con datos iniciales)
 python init_db.py
 
-# 4) levantar la web
+## 4) Levantar la web
 python app.py
 
 
-Luego abrir: **http://localhost:5000** o **http://127.0.0.1:5000** 
-
-
-
+#### Luego abrir: **http://localhost:5000** o **http://127.0.0.1:5000** 
