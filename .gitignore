@@ -1,0 +1,28 @@
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Base de datos local (se regenera con init_db.py)
+*.db
+*.sqlite
+*.sqlite3
+
+# Reportes generados
+reportes/reporte_20*.csv
+
+# Entorno / secretos
+.env
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
