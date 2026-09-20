@@ -13,7 +13,7 @@
       </div>
     {% endif %}
 
-    <form method="post">
+    <form method="post" id="form-propuesta">
       <div class="form-grupo">
         <label for="razon_social">Razon social</label>
         <input type="text" id="razon_social" name="razon_social" value="{{ form.get('razon_social','') }}" required>
@@ -35,11 +35,32 @@
         <div class="hint">Se usara para comunicarnos sobre esta propuesta.</div>
       </div>
       <div class="form-grupo">
-        <label for="descripcion">Descripcion de la oferta</label>
-        <textarea id="descripcion" name="descripcion">{{ form.get('descripcion','') }}</textarea>
-        <div class="hint">Detalle libre de la propuesta.</div>
+        <label>Descripcion de la oferta</label>
+        <div id="editor-descripcion" style="min-height:150px; background:#fff; color:#111;">{{ form.get('descripcion','') | safe }}</div>
+        <textarea id="descripcion" name="descripcion" hidden>{{ form.get('descripcion','') }}</textarea>
+        <div class="hint">Podes dar formato: negrita, cursiva, listas y enlaces.</div>
       </div>
       <button class="btn btn-block" type="submit">Enviar propuesta</button>
     </form>
   </div>
+
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+  <script>
+    var quill = new Quill('#editor-descripcion', {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['link', 'clean']
+        ]
+      }
+    });
+
+    var campoDescripcion = document.getElementById('descripcion');
+    document.getElementById('form-propuesta').addEventListener('submit', function () {
+      campoDescripcion.value = quill.root.innerHTML;
+    });
+  </script>
 {% endblock %}

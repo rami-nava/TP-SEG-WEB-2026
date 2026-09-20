@@ -5,8 +5,6 @@ import re
 from datetime import date
 from functools import wraps
 
-from markupsafe import Markup
-
 from flask import (
     Flask, request, redirect, url_for, render_template,
     make_response, send_file, abort, flash
@@ -19,18 +17,6 @@ app = Flask(__name__)
 app.secret_key = "flash-messages-key"
 
 COOKIE_NAME = "sesion"
-
-
-# --------------------------------------------------------------------------
-#  Formato de la descripcion de una propuesta
-# --------------------------------------------------------------------------
-@app.template_filter("formato")
-def formato(texto):
-    """Da formato basico a la descripcion de una propuesta: **negrita** y
-    saltos de linea, para mostrarla prolija en el panel del admin."""
-    html = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", texto or "")  # **negrita**
-    html = html.replace("\n", "<br>")                                         # saltos de linea
-    return Markup(html)   # se marca como HTML para renderizar el formato
 
 
 # --------------------------------------------------------------------------
@@ -222,7 +208,10 @@ def propuesta(licitacion_id):
         razon_social = request.form.get("razon_social", "").strip()
         cuit = request.form.get("cuit", "").strip()
         monto_raw = request.form.get("monto", "").strip()
-        descripcion = request.form.get("descripcion", "")   # <-- NO sanitizado
+        # El editor Quill del formulario envia HTML. Se guarda tal cual, sin
+        # sanitizar en el servidor (se "confia" en que el editor del cliente
+        # ya limpio el contenido).
+        descripcion = request.form.get("descripcion", "")   # <-- HTML crudo, NO sanitizado
         email_contacto = request.form.get("email_contacto", "").strip()
 
         errores = []

