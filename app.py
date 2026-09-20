@@ -558,6 +558,6 @@ if __name__ == "__main__":
         print("[!] No existe database.db. Ejecuta primero:  python init_db.py")
     print("=" * 60)
     print("  Licitaciones Ficticio S.A.")
-    print("  http://localhost:5000")
+    print("  http://127.0.0.1:5000")
     print("=" * 60)
     app.run(host="127.0.0.1", port=5000, debug=True)

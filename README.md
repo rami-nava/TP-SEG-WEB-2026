@@ -37,7 +37,7 @@ python init_db.py
 python app.py
 
 
-#### Luego abrir: **http://localhost:5000** o **http://127.0.0.1:5000** 
+#### Luego abrir: **http://127.0.0.1:5000**
 
 
 ## Documentacion incluida
@@ -47,7 +47,7 @@ python app.py
 ## Estructura
 
 app.py                 rutas Flask
-config.py              SECRET_KEY + credenciales (objetivo del path traversal)
+config.py              SECRET_KEY + ruta de la BD (objetivo del path traversal)
 session_utils.py       cookie de sesion (pickle + HMAC)  <- deserializacion insegura
 init_db.py             crea/precarga database.db
 templates/             plantillas Jinja2
