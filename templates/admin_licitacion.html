@@ -37,7 +37,7 @@
                 <td class="nowrap">{{ p.email_contacto }}</td>
                 <td class="monto nowrap">$ {{ '{:,.0f}'.format(p.monto) }}</td>
                 <td>
-                  <div class="desc-render">{{ p.descripcion | safe }}</div>
+                  <div class="desc-render">{{ p.descripcion | formato }}</div>
                 </td>
                 <td>
                   {% if lic.estado == 'cerrada' %}
