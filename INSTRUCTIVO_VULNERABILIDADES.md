@@ -79,12 +79,15 @@
   `app.py` en cada request a traves de `usuario_actual()`.
 - **Como explotarla:**
   1. Editar `exploits/4_forjar_cookie_rce.py`:
-     - `UMBRAL = valor deseado`  (se borran las propuestas con monto **menor** a este valor).
+     - `USERNAME = "atacante"`  (el username propio; el exploit resuelve su ID en la BD).
      - `SECRET_KEY = b"clave-super-secreta-ficticio-sa-2026"` (la obtenida en el paso 3).
   2. Generar y enviar la cookie forjada al servidor en ejecucion: 
      - Generar: python3 exploits/4_forjar_cookie_rce.py
      - Generar y enviar: python3 exploits/4_forjar_cookie_rce.py --enviar
 - **Resultado esperado:**
-  - Se **borran** de la tabla `propuestas` todas las de monto < valor deseado
+  - El payload resuelve el **ID** del usuario a partir del `USERNAME` y, en cada
+    licitacion **abierta** donde ese usuario tiene propuesta, **borra** de la tabla
+    `propuestas` las de la competencia con monto **menor** al que oferto el usuario.
+    Las licitaciones cerradas y las propuestas propias no se tocan.
 
 ---

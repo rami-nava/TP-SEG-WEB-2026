@@ -15,7 +15,8 @@ Incluye una **cadena de 4 vulnerabilidades** que terminan en **RCE**:
 2. **Broken Authentication / Session Management** → suplantar al admin con su cookie.
 3. **Path Traversal / LFI** → leer `config.py` y obtener la `SECRET_KEY`.
 4. **Deserializacion insegura (pickle)** → forjar una cookie maliciosa → **RCE**,
-   usado para borrar de la BD las propuestas con monto por debajo de un umbral configurable.
+   usado para borrar de la BD, segun el `USERNAME` configurado, las propuestas de la
+   competencia con monto menor al del usuario en las licitaciones abiertas donde oferto.
 
 ## Requisitos
 - Python 3
