@@ -37,3 +37,19 @@ python app.py
 
 
 #### Luego abrir: **http://localhost:5000** o **http://127.0.0.1:5000** 
+
+
+## Documentacion incluida
+- **`INSTRUCTIVO_WEB.md`** — como funciona la web (descripcion, roles y pantallas).
+- **`INSTRUCTIVO_VULNERABILIDADES.md`** — como explotar cada vulnerabilidad, paso a paso.
+
+## Estructura
+
+app.py                 rutas Flask
+config.py              SECRET_KEY + credenciales (objetivo del path traversal)
+session_utils.py       cookie de sesion (pickle + HMAC)  <- deserializacion insegura
+init_db.py             crea/precarga database.db
+templates/             plantillas Jinja2
+static/style.css       estilos
+reportes/              descargas legitimas (base del path traversal)
+exploits/              scripts de explotacion
