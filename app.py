@@ -38,6 +38,51 @@ def cierre_vencido(fecha_cierre):
         return False
 
 
+def cerrar_licitaciones_vencidas():
+    """Cierra automaticamente las licitaciones cuya fecha de cierre ya paso:
+    marca la licitacion como 'cerrada' y adjudica (selecciona) la propuesta de
+    MENOR monto; el resto queda 'no_seleccionada'. Si la licitacion no tiene
+    ninguna propuesta, se cierra igual (sin adjudicar)."""
+    db = get_db()
+    abiertas = db.execute(
+        "SELECT id, fecha_cierre FROM licitaciones WHERE estado = 'abierta'"
+    ).fetchall()
+
+    cambios = False
+    for lic in abiertas:
+        if not cierre_vencido(lic["fecha_cierre"]):
+            continue
+        lic_id = lic["id"]
+
+        ganadora = db.execute(
+            "SELECT id FROM propuestas WHERE licitacion_id = ? "
+            "ORDER BY monto ASC, id ASC LIMIT 1",
+            (lic_id,),
+        ).fetchone()
+
+        if ganadora is not None:
+            db.execute(
+                "UPDATE propuestas SET estado = 'no_seleccionada' "
+                "WHERE licitacion_id = ? AND id <> ?",
+                (lic_id, ganadora["id"]),
+            )
+            db.execute(
+                "UPDATE propuestas SET estado = 'seleccionada' WHERE id = ?",
+                (ganadora["id"],),
+            )
+
+        # Con o sin propuestas, la licitacion vencida se cierra.
+        db.execute(
+            "UPDATE licitaciones SET estado = 'cerrada' WHERE id = ?",
+            (lic_id,),
+        )
+        cambios = True
+
+    if cambios:
+        db.commit()
+    db.close()
+
+
 # --------------------------------------------------------------------------
 #  Manejo de sesion (cookie personalizada pickle + HMAC)
 # --------------------------------------------------------------------------
@@ -77,6 +122,15 @@ def admin_requerido(f):
 def inyectar_usuario():
     """Hace disponible 'usuario' en todas las plantillas."""
     return {"usuario": usuario_actual()}
+
+
+@app.before_request
+def _auto_cerrar_vencidas():
+    """Antes de atender cualquier pagina, cierra/adjudica las licitaciones cuya
+    fecha de cierre ya paso. Se saltea los archivos estaticos."""
+    if request.endpoint == "static":
+        return
+    cerrar_licitaciones_vencidas()
 
 
 # --------------------------------------------------------------------------
