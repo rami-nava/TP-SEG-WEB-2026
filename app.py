@@ -354,6 +354,11 @@ def eliminar_propuesta(propuesta_id):
         db.close()
         abort(404)
 
+    if prop["estado"] == "seleccionada":
+        db.close()
+        flash("No se puede eliminar una propuesta ya seleccionada.", "error")
+        return redirect(url_for("mis_propuestas"))
+
     db.execute("DELETE FROM propuestas WHERE id = ?", (propuesta_id,))
     db.commit()
     db.close()
@@ -429,7 +434,13 @@ def admin_licitacion(id):
 @app.route("/admin/propuesta/<int:propuesta_id>/estado", methods=["POST"])
 @admin_requerido
 def admin_estado_propuesta(propuesta_id):
+    u = usuario_actual()
     accion = request.form.get("accion", "")
+    # Adjudicar (seleccionar) queda reservado al admin pleno. El revisor
+    # (adminRevision) solo puede aprobar/rechazar; si intenta seleccionar
+    # -incluso salteando la UI- se rechaza con 403.
+    if accion == "seleccionar" and not u.puede_adjudicar():
+        abort(403)
     # 'no_seleccionada' es un estado AUTOMATICO (no es una accion elegible).
     estados = {
         "aprobar": "aprobada",

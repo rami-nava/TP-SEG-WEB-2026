@@ -54,7 +54,10 @@
                         <option value="pendiente"   {{ 'selected' if p.estado == 'pendiente' }}>Pendiente</option>
                         <option value="aprobar"     {{ 'selected' if p.estado == 'aprobada' }}>Aprobada</option>
                         <option value="rechazar"    {{ 'selected' if p.estado == 'rechazada' }}>Rechazada</option>
+                        {% if usuario.puede_adjudicar() %}
+                        {# Adjudicar es exclusivo del admin pleno. El revisor no ve esta opcion. #}
                         <option value="seleccionar" {{ 'selected' if p.estado == 'seleccionada' }}>Seleccionada</option>
+                        {% endif %}
                       </select>
                     </form>
                   {% endif %}

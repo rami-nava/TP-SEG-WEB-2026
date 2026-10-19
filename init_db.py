@@ -26,7 +26,7 @@ def recrear_db():
             id             INTEGER PRIMARY KEY AUTOINCREMENT,
             username       TEXT UNIQUE NOT NULL,
             password       TEXT NOT NULL,
-            rol            TEXT NOT NULL,          -- 'admin' | 'usuario'
+            rol            TEXT NOT NULL,          -- 'admin' | 'adminRevision' | 'usuario'
             nombre_empresa TEXT
         )
     """)
@@ -59,10 +59,13 @@ def recrear_db():
 
     # ---------------- Usuarios ----------------
     usuarios = [
-        ("admin",       "admin123", "admin",   "Ficticio S.A."),
-        ("proveedor_a", "passa123", "usuario", "Metalurgica Sur SRL"),
-        ("proveedor_b", "passb123", "usuario", "Insumos del Norte SA"),
-        ("atacante",    "hack123",  "usuario", "Consultora Sombra"),
+        ("admin",       "admin123",   "admin",         "Ficticio S.A."),
+        ("proveedor_a", "passa123",   "usuario",       "Metalurgica Sur SRL"),
+        ("proveedor_b", "passb123",   "usuario",       "Insumos del Norte SA"),
+        ("atacante",    "hack123",    "usuario",       "Consultora Sombra"),
+        # Admin de revision: SOLO aprueba/rechaza propuestas, no adjudica.
+        # Es la cuenta cuya sesion roba el atacante (XSS -> robo de cookie).
+        ("revisor",     "revisor123", "adminRevision", "Ficticio S.A."),
     ]
     c.executemany(
         "INSERT INTO usuarios (username, password, rol, nombre_empresa) VALUES (?,?,?,?)",

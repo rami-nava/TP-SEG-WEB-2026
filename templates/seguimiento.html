@@ -24,11 +24,14 @@
                 <td class="monto nowrap">$ {{ '{:,.0f}'.format(p.monto) }}</td>
                 <td><span class="badge badge-{{ p.estado }}">{{ p.estado|replace('_',' ')|capitalize }}</span></td>
                 <td>
-                  <form method="post"
-                        action="{{ url_for('eliminar_propuesta', propuesta_id=p.id) }}"
-                        onsubmit="return confirm('¿Eliminar esta propuesta?');">
-                    <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
-                  </form>
+                  {% if p.estado != 'seleccionada' %}
+                    {# Una propuesta adjudicada no se puede eliminar: sin boton. #}
+                    <form method="post"
+                          action="{{ url_for('eliminar_propuesta', propuesta_id=p.id) }}"
+                          onsubmit="return confirm('¿Eliminar esta propuesta?');">
+                      <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
+                    </form>
+                  {% endif %}
                 </td>
               </tr>
             {% endfor %}

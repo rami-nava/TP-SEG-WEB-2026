@@ -40,9 +40,11 @@
 
 ## Paso 2 — Robo de cookie / Session Hijacking
 
-- **Que es:** el XSS exfiltra la cookie de sesion del admin porque la cookie
+- **Que es:** el XSS exfiltra la cookie de sesion del **revisor** (`adminRevision`,
+  la cuenta que revisa las propuestas entrantes) porque la cookie
   **no tiene `HttpOnly`** (`app.py`: `set_cookie(..., httponly=False)`), y luego
-  se reutiliza (replay) para entrar como admin sin su contrasena.
+  se reutiliza (replay) para entrar al panel admin sin su contrasena. Esa cuenta
+  puede aprobar/rechazar pero **no adjudicar** (ver Paso 4).
 - **Donde esta:** ejecución de código XSS en `/admin/licitacion/<id>`.
 - **Como explotarla:**
   1. Montar el listener del atacante (terminal aparte):
@@ -52,9 +54,10 @@
      > cambio usas `python3 -m http.server 8000`, el log muestra la cookie
      > **URL-encoded** y tenes que revertir a mano `%3D%3D` → `==`,
      > `%2B` → `+`, `%2F` → `/` antes de reutilizarla.
-  2. Con el XSS del paso 1 ya cargado, iniciar sesion como `admin` / `admin123`
-     y abrir la licitacion afectada (`/admin/licitacion/<id>`).
-  3. La cookie del admin aparece en el listener. Con `receptor_cookie.py` veras:
+  2. Con el XSS del paso 1 ya cargado, iniciar sesion como la victima
+     `revisor` / `revisor123` y abrir la licitacion afectada
+     (`/admin/licitacion/<id>`).
+  3. La cookie del revisor aparece en el listener. Con `receptor_cookie.py` veras:
      ```
      [COOKIE ROBADA] (p/ replay) => gASV...lHViLg==.5df0...896
      ```
@@ -98,6 +101,10 @@
   valida** que contiene un objeto pickle malicioso. El servidor hace
   `pickle.loads()` sobre ella (`session_utils.leer_cookie`) y ejecuta el
   `__reduce__` del objeto → **ejecucion de codigo**.
+- **Por que hace falta si ya tenemos la sesion:** la cookie robada es la del
+  **revisor** (`adminRevision`), que **no puede adjudicar** (la opcion
+  "Seleccionada" no existe para ese rol y el endpoint responde `403`). El RCE
+  escribe directo en la BD y se saltea ese control de rol.
 - **Donde esta:** `session_utils.py` (`pickle.loads(data)`), invocado por
   `app.py` en cada request a traves de `usuario_actual()`.
 - **Como explotarla:**
@@ -108,12 +115,15 @@
      - `USERNAME = "atacante"`  (el username propio; el exploit resuelve su ID en la BD).
      - `SECRET_KEY = b"clave-super-secreta-ficticio-sa-2026"` (la obtenida en el paso 3).
   2. Generar y enviar la cookie forjada al servidor en ejecucion: 
-     - Generar: python3 exploits/4_forjar_cookie_rce.py
+     - Generar: python3 exploits/forjar_cookie_rce.py
      - Generar y enviar: python3 exploits/forjar_cookie_rce.py --enviar
 - **Resultado esperado:**
   - El payload resuelve el **ID** del usuario a partir del `USERNAME` y, en cada
-    licitacion **abierta** donde ese usuario tiene propuesta, **borra** de la tabla
-    `propuestas` las de la competencia con monto **menor** al que oferto el usuario.
-    Las licitaciones cerradas y las propuestas propias no se tocan.
+    licitacion **abierta** donde ese usuario tiene propuesta, la **adjudica a su
+    favor**: su propuesta pasa a `seleccionada`, las demas a `no_seleccionada` y la
+    licitacion se marca `cerrada` (la misma operacion que `accion=seleccionar`, que
+    al revisor le estaba vedada). Resultado: **gana la licitacion aunque su oferta
+    sea la mas cara**, salteandose el control de rol y el cierre automatico por
+    menor monto.
 
 ---

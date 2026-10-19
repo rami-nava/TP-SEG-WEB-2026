@@ -12,7 +12,8 @@ empresa revisa las propuestas de cada licitacion y define su estado
 | Rol | Quien es | Que puede hacer |
 |-----|----------|-----------------|
 | **usuario** (proveedor) | Empresas proveedoras | Ver licitaciones abiertas, presentar propuestas, seguir el estado de sus propias propuestas, editar su perfil. |
-| **admin** | Personal de Ficticio S.A. | Ver licitaciones y editar perfil + Panel de administracion: crear licitaciones, ver TODAS las propuestas de cada licitacion y descargar reportes internos. |
+| **admin** | Personal de Ficticio S.A. (admin pleno) | Todo lo del panel de administracion: crear licitaciones, ver TODAS las propuestas, descargar reportes internos y **adjudicar** (seleccionar la propuesta ganadora, lo que cierra la licitacion). |
+| **adminRevision** | Personal de revision de Ficticio S.A. | Entra al panel y revisa propuestas: **solo puede aprobar/rechazar** (y marcar pendiente). **No puede adjudicar**: no ve la opcion "Seleccionada" y el endpoint le responde `403` si la fuerza. |
 
 ## 3. Recorrido por las pantallas
 | Ruta | Pantalla | Proposito |

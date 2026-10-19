@@ -28,6 +28,12 @@ class Usuario:
         self.nombre_empresa = nombre_empresa
 
     def es_admin(self):
+        # 'admin' (pleno) y 'adminRevision' (revisor) acceden al area admin.
+        return self.rol in ("admin", "adminRevision")
+
+    def puede_adjudicar(self):
+        # Solo el admin pleno adjudica (selecciona ganador y cierra la
+        # licitacion). El revisor (adminRevision) solo aprueba/rechaza.
         return self.rol == "admin"
 
 
