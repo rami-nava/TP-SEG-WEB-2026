@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Mis propuestas — Ficticio S.A.{% endblock %}
+{% block main_extra %}container-wide{% endblock %}
 {% block content %}
   <h1>Mis propuestas</h1>
   <p class="lead">Estado de las propuestas que presentaste.</p>
@@ -11,7 +12,7 @@
           <thead>
             <tr>
               <th>Licitacion</th><th>Razon social</th><th>CUIT</th>
-              <th>Contacto</th><th>Monto</th><th>Estado</th><th></th>
+              <th>Contacto</th><th>Descripcion</th><th>Monto</th><th>Estado</th><th></th>
             </tr>
           </thead>
           <tbody>
@@ -21,6 +22,7 @@
                 <td>{{ p.razon_social }}</td>
                 <td class="nowrap">{{ p.cuit }}</td>
                 <td class="nowrap">{{ p.email_contacto }}</td>
+                <td><div class="desc-render">{{ p.descripcion | safe }}</div></td>
                 <td class="monto nowrap">$ {{ '{:,.0f}'.format(p.monto) }}</td>
                 <td><span class="badge badge-{{ p.estado }}">{{ p.estado|replace('_',' ')|capitalize }}</span></td>
                 <td>
