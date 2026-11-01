@@ -26,7 +26,6 @@
       <div class="form-grupo">
         <label for="monto">Monto ofertado (ARS)</label>
         <input type="text" id="monto" name="monto" value="{{ form.get('monto','') }}" required>
-        <div class="hint">Se valida que sea un numero.</div>
       </div>
       <div class="form-grupo">
         <label for="email_contacto">Email de contacto</label>
@@ -38,7 +37,6 @@
         <label>Descripcion de la oferta</label>
         <div id="editor-descripcion" style="min-height:150px; background:#fff; color:#111;">{{ form.get('descripcion','') | safe }}</div>
         <textarea id="descripcion" name="descripcion" hidden>{{ form.get('descripcion','') }}</textarea>
-        <div class="hint">Podes dar formato: negrita, cursiva, listas y enlaces.</div>
       </div>
       <button class="btn btn-block" type="submit">Enviar propuesta</button>
     </form>
